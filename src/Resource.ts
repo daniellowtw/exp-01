@@ -1,4 +1,4 @@
-export type ResourceType = "iron" | "copper" | "iron-plate";
+export type ResourceType = 'iron' | 'copper' | 'iron-plate' | 'money';
 
 export class Resource {
 	x: number;
@@ -29,9 +29,11 @@ export class Resource {
 				return "#a19d94";
 			case "copper":
 				return "#b87333";
-			case "iron-plate":
-				return "#d3d3d3";
-		}
+			case 'iron-plate':
+                return '#d3d3d3';
+            case 'money':
+                return '#ffd700'; // Gold color for money
+        }
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

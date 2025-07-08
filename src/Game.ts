@@ -55,6 +55,9 @@ export class Game {
 			.getElementById("assembler-button")!
 			.addEventListener("click", () => (this.buildingType = "assembler"));
         document
+            .getElementById("iron-plate-seller-button")!
+            .addEventListener("click", () => (this.buildingType = "iron-plate-seller" as BuildingType));
+        document
             .getElementById("delete-button")!
             .addEventListener("click", () => (this.buildingType = "delete" as BuildingType));
 

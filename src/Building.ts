@@ -4,7 +4,7 @@ import type { Player } from "./Player";
 import type { World } from "./World";
 import type { ResourceAmount } from "./ResourceAmount";
 
-export type BuildingType = "miner" | "belt" | "assembler" | "delete";
+export type BuildingType = "miner" | "belt" | "assembler" | "delete" | "iron-plate-seller";
 
 export class Building {
 	x: number;
@@ -127,6 +127,13 @@ export class Building {
 				}
 			}
 		}
+		if (this.type === "iron-plate-seller") {
+            const ironPlates = player.getResourceCount('iron-plate');
+            if (ironPlates > 0) {
+                player.removeResourceFromInventory('iron-plate', 1);
+                player.collectResource('money', 10); // Sell 1 iron plate for 10 money
+            }
+		}
 	}
 
     addResourceToInventory(type: ResourceType, amount: number) {
@@ -162,6 +169,10 @@ export class Building {
         if (this.type === "assembler" && this.recipe) {
             return this.recipe.inputs.some(input => input.type === resourceType);
         }
+        // Iron plate sellers can accept iron plates
+        if (this.type === "iron-plate-seller") {
+            return resourceType === 'iron-plate';
+        }
         return false;
     }
 
@@ -175,6 +186,8 @@ export class Building {
 				return "#add3e6";
             case "delete":
                 return "#ff0000"; // Red for delete mode
+            case "iron-plate-seller":
+                return "#ffd700"; // Gold for iron plate seller
 		}
 	}
 
@@ -217,4 +230,3 @@ export class Building {
 		}
 	}
 }
-

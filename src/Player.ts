@@ -1,6 +1,6 @@
 import { Keyboard } from './Keyboard';
-import { type ResourceType } from './Resource';
-import { type ResourceAmount } from './ResourceAmount';
+import { ResourceType } from './Resource';
+import { ResourceAmount } from './ResourceAmount';
 
 export class Player {
     x: number;
@@ -9,7 +9,7 @@ export class Player {
     height: number;
     color: string;
     speed: number;
-    inventory: ResourceAmount[] = [];
+    inventory: ResourceAmount[] = [{ type: 'money', amount: 0 }];
 
     constructor(x: number, y: number) {
         this.x = x;
@@ -42,6 +42,21 @@ export class Player {
         } else {
             this.inventory.push({ type, amount });
         }
+    }
+
+    removeResourceFromInventory(type: ResourceType, amount: number) {
+        const existingResource = this.inventory.find(r => r.type === type);
+        if (existingResource) {
+            existingResource.amount -= amount;
+            if (existingResource.amount <= 0) {
+                this.inventory = this.inventory.filter(r => r.type !== type);
+            }
+        }
+    }
+
+    getResourceCount(type: ResourceType): number {
+        const resource = this.inventory.find(r => r.type === type);
+        return resource ? resource.amount : 0;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
