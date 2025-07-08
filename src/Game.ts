@@ -53,6 +53,9 @@ export class Game {
 		document
 			.getElementById("assembler-button")!
 			.addEventListener("click", () => (this.buildingType = "assembler"));
+        document
+            .getElementById("delete-button")!
+            .addEventListener("click", () => (this.buildingType = "delete" as BuildingType));
 
 		window.addEventListener("keydown", (e) => this.handleKey(e));
 	}
@@ -61,14 +64,14 @@ export class Game {
 		this.gameLoop();
 	}
 
-	handleKey(e: KeyboardEvent) {
-		if (e.key === "r" && this.buildingType === "belt") {
-			const directions = ["right", "down", "left", "up"];
-			const currentIndex = directions.indexOf(this.currentBeltDirection);
-			const nextIndex = (currentIndex + 1) % directions.length;
-			this.currentBeltDirection = directions[nextIndex] as any;
-		}
-	}
+    handleKey(e: KeyboardEvent) {
+        if (e.key === 'r' && this.buildingType === 'belt') {
+            const directions = ['right', 'down', 'left', 'up'];
+            const currentIndex = directions.indexOf(this.currentBeltDirection);
+            const nextIndex = (currentIndex + 1) % directions.length;
+            this.currentBeltDirection = directions[nextIndex] as any;
+        }
+    }
 
 	handleMouseMove() {
 		const gridX = Math.floor(
@@ -87,25 +90,23 @@ export class Game {
 			gridY * this.world.tileSize,
 		);
 
-		if (building) {
-			this.hoveredTile = {
-				x: this.mouse.x,
-				y: this.mouse.y,
-				type: building.type,
-				inventory: building.inventory,
-			};
-			console.log(
-				`Hovered building: ${building.type} at (${gridX}, ${gridY}) with inventory: ${building.inventory.map((item) => item.type).join(", ")}`,
-			);
-		} else if (resource) {
-			this.hoveredTile = {
-				x: this.mouse.x,
-				y: this.mouse.y,
-				type: resource.type,
-			};
-		} else {
-			this.hoveredTile = null;
-		}
+        if (building) {
+            this.hoveredTile = {
+                x: this.mouse.x,
+                y: this.mouse.y,
+                type: building.type,
+                inventory: building.inventory,
+            };
+            console.log(`Hovered building: ${building.type} at (${gridX}, ${gridY}) with inventory: ${building.inventory.map(item => item.type).join(", ")}`);
+        } else if (resource) {
+            this.hoveredTile = {
+                x: this.mouse.x,
+                y: this.mouse.y,
+                type: resource.type,
+            };
+        } else {
+            this.hoveredTile = null;
+        }
 	}
 
 	handleClick() {
@@ -115,12 +116,16 @@ export class Game {
 		const gridY = Math.floor(
 			(this.mouse.y + this.cameraY) / this.world.tileSize,
 		);
-		this.world.addBuilding(
-			gridX * this.world.tileSize,
-			gridY * this.world.tileSize,
-			this.buildingType,
-			this.buildingType === "belt" ? this.currentBeltDirection : undefined,
-		);
+        if (this.buildingType === 'delete') {
+            this.world.removeBuilding(gridX * this.world.tileSize, gridY * this.world.tileSize);
+        } else {
+            this.world.addBuilding(
+                gridX * this.world.tileSize,
+                gridY * this.world.tileSize,
+                this.buildingType,
+                this.buildingType === 'belt' ? this.currentBeltDirection : undefined
+            );
+        }
 	}
 
 	gameLoop() {

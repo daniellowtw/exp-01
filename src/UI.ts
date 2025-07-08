@@ -1,7 +1,7 @@
 import type { BuildingType } from "./Building";
 import type { Player } from "./Player";
 import { Resource } from "./Resource";
-import { ironPlateRecipe, Recipe } from "./Recipe";
+import { ironPlateRecipe, type Recipe } from "./Recipe";
 
 export class UI {
 	draw(
@@ -16,14 +16,6 @@ export class UI {
 			inventory?: Resource[];
 		} | null,
 	) {
-		ctx.fillStyle = "white";
-		ctx.font = "24px sans-serif";
-
-		// Draw resource count
-		ctx.fillText(`Iron: ${player.inventory.iron}`, 10, 30);
-		ctx.fillText(`Copper: ${player.inventory.copper}`, 10, 60);
-		ctx.fillText(`Iron Plate: ${player.inventory["iron-plate"]}`, 10, 90);
-
 		// Draw tooltip
 		if (hoveredTile) {
 			ctx.fillStyle = "rgba(0, 0, 0, 0.7)";

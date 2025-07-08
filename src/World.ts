@@ -42,14 +42,13 @@ export class World {
 		}
 	}
 
-	addBuilding(
-		x: number,
-		y: number,
-		type: BuildingType,
-		direction?: "up" | "down" | "left" | "right",
-	) {
-		this.buildings.push(new Building(x, y, type, direction));
-	}
+	addBuilding(x: number, y: number, type: BuildingType, direction?: 'up' | 'down' | 'left' | 'right') {
+        this.buildings.push(new Building(x, y, type, direction));
+    }
+
+    removeBuilding(x: number, y: number) {
+        this.buildings = this.buildings.filter(b => b.x !== x || b.y !== y);
+    }
 
 	getResourceAt(x: number, y: number): Resource | undefined {
 		return this.resources.find((r) => r.x === x && r.y === y);
