@@ -42,9 +42,9 @@ export class World {
 		}
 	}
 
-	addBuilding(x: number, y: number, type: BuildingType) {
-		this.buildings.push(new Building(x, y, type));
-	}
+	addBuilding(x: number, y: number, type: BuildingType, direction?: 'up' | 'down' | 'left' | 'right') {
+        this.buildings.push(new Building(x, y, type, direction));
+    }
 
 	getResourceAt(x: number, y: number): Resource | undefined {
 		return this.resources.find((r) => r.x === x && r.y === y);

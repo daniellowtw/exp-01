@@ -1,7 +1,7 @@
 import { Resource } from "./Resource";
 import { ironPlateRecipe, type Recipe } from "./Recipe";
 import type { Player } from "./Player";
-import { World } from "./World";
+import type { World } from "./World";
 
 export type BuildingType = "miner" | "belt" | "assembler";
 
@@ -19,7 +19,7 @@ export class Building {
 	recipe: Recipe | null = null;
 	craftingProgress: number = 0;
 
-	constructor(x: number, y: number, type: BuildingType) {
+	constructor(x: number, y: number, type: BuildingType, direction?: "up" | "down" | "left" | "right") {
 		this.x = x;
 		this.y = y;
 		this.width = 50;
@@ -28,6 +28,9 @@ export class Building {
 		this.color = this.getColor();
 		if (type === "assembler") {
 			this.recipe = ironPlateRecipe;
+		}
+		if (direction) {
+			this.direction = direction;
 		}
 	}
 
@@ -43,10 +46,54 @@ export class Building {
 			}
 		}
 		if (this.type === "belt") {
+			// Try to push resources first
 			if (this.inventory.length > 0) {
-				const nextBuilding = world.getBuildingAt(this.x + this.width, this.y);
-				if (nextBuilding) {
-					nextBuilding.inventory.push(this.inventory.pop()!);
+				let nextX = this.x;
+				let nextY = this.y;
+
+				switch (this.direction) {
+					case "right":
+						nextX += this.width;
+						break;
+					case "left":
+						nextX -= this.width;
+						break;
+					case "up":
+						nextY -= this.height;
+						break;
+					case "down":
+						nextY += this.height;
+						break;
+				}
+
+				const nextBuilding = world.getBuildingAt(nextX, nextY);
+				if (nextBuilding && nextBuilding.canAcceptResource(this.inventory[0])) {
+					nextBuilding.inventory.push(this.inventory.shift()!); // Use shift to remove from the front
+				}
+			} else { // If inventory is empty, try to pull from previous building
+				let prevX = this.x;
+				let prevY = this.y;
+
+				switch (this.direction) {
+					case "right":
+						prevX -= this.width;
+						break;
+					case "left":
+						prevX += this.width;
+						break;
+					case "up":
+						prevY += this.height;
+						break;
+					case "down":
+						prevY -= this.height;
+						break;
+				}
+
+				const prevBuilding = world.getBuildingAt(prevX, prevY);
+				if (prevBuilding && prevBuilding.inventory.length > 0) {
+					const resourceToPull = prevBuilding.inventory[0];
+					// Belts can accept any resource, so no need to check canAcceptResource here
+					this.inventory.push(prevBuilding.inventory.shift()!); // Pull the resource
 				}
 			}
 		}
@@ -78,8 +125,8 @@ export class Building {
 						50,
 						this.recipe.output.type,
 					);
-					const nextBuilding = world.getBuildingAt(this.x + this.width, this.y);
-					if (nextBuilding) {
+					const nextBuilding = world.getBuildingAt(this.x + this.width, this.y); // Still hardcoded for now
+					if (nextBuilding && nextBuilding.canAcceptResource(outputResource)) {
 						nextBuilding.inventory.push(outputResource);
 					} else {
 						player.collectResource(
@@ -92,6 +139,18 @@ export class Building {
 				}
 			}
 		}
+	}
+
+	canAcceptResource(resource: Resource): boolean {
+		// Belts can accept any resource
+		if (this.type === "belt") {
+			return true;
+		}
+		// Assemblers can accept resources that are inputs for their recipe
+		if (this.type === "assembler" && this.recipe) {
+			return this.recipe.inputs.some(input => input.type === resource.type);
+		}
+		return false;
 	}
 
 	getColor(): string {
@@ -108,5 +167,39 @@ export class Building {
 	draw(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.width, this.height);
+
+		if (this.type === 'belt') {
+			ctx.strokeStyle = 'black';
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+
+			const centerX = this.x + this.width / 2;
+			const centerY = this.y + this.height / 2;
+			const arrowSize = 10;
+
+			switch (this.direction) {
+				case 'right':
+					ctx.moveTo(centerX - arrowSize, centerY - arrowSize);
+					ctx.lineTo(centerX + arrowSize, centerY);
+					ctx.lineTo(centerX - arrowSize, centerY + arrowSize);
+					break;
+				case 'left':
+					ctx.moveTo(centerX + arrowSize, centerY - arrowSize);
+					ctx.lineTo(centerX - arrowSize, centerY);
+					ctx.lineTo(centerX + arrowSize, centerY + arrowSize);
+					break;
+				case 'up':
+					ctx.moveTo(centerX - arrowSize, centerY + arrowSize);
+					ctx.lineTo(centerX, centerY - arrowSize);
+					ctx.lineTo(centerX + arrowSize, centerY + arrowSize);
+					break;
+				case 'down':
+					ctx.moveTo(centerX - arrowSize, centerY - arrowSize);
+					ctx.lineTo(centerX, centerY + arrowSize);
+					ctx.lineTo(centerX + arrowSize, centerY - arrowSize);
+					break;
+			}
+			ctx.stroke();
+		}
 	}
 }

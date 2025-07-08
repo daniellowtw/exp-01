@@ -1,6 +1,7 @@
 import type { BuildingType } from "./Building";
 import type { Player } from "./Player";
 import { Resource } from "./Resource";
+import { ironPlateRecipe, Recipe } from "./Recipe";
 
 export class UI {
 	draw(
@@ -29,9 +30,6 @@ export class UI {
 
 		// Draw tooltip
 		if (hoveredTile) {
-			console.log(
-				`Hovered tile: ${hoveredTile.type} at (${hoveredTile.x}, ${hoveredTile.y})`,
-			);
 			ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
 			let tooltipText = hoveredTile.type.toUpperCase();
 			let tooltipHeight = 30;
@@ -44,15 +42,15 @@ export class UI {
 				});
 			}
 
-			// const lines = tooltipText.split('\n');
-			// const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b);
-			// const tooltipWidth = ctx.measureText(longestLine).width + 20;
+			const lines = tooltipText.split('\n');
+			const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b);
+			const tooltipWidth = ctx.measureText(longestLine).width + 20;
 
-			// ctx.fillRect(hoveredTile.x + 10, hoveredTile.y + 10, tooltipWidth, tooltipHeight);
-			// ctx.fillStyle = 'white';
-			// lines.forEach((line, index) => {
-			//     ctx.fillText(line, hoveredTile.x + 15, hoveredTile.y + 30 + (index * 20));
-			// });
+			ctx.fillRect(hoveredTile.x + 10, hoveredTile.y + 10, tooltipWidth, tooltipHeight);
+			ctx.fillStyle = "white";
+			lines.forEach((line, index) => {
+				ctx.fillText(line, hoveredTile.x + 15, hoveredTile.y + 30 + (index * 20));
+			});
 		}
 
 		// Update inventory display
@@ -66,6 +64,21 @@ export class UI {
 				}`;
 				inventoryList.appendChild(li);
 			}
+		}
+
+		// Update recipe display
+		const recipeList = document.getElementById("recipe-list");
+		if (recipeList) {
+			recipeList.innerHTML = "";
+			const recipes: Recipe[] = [ironPlateRecipe]; // Add all recipes here
+			recipes.forEach((recipe) => {
+				const li = document.createElement("li");
+				const inputs = recipe.inputs
+					.map((input) => `${input.amount} ${input.type}`)
+					.join(", ");
+				li.textContent = `${recipe.output.amount} ${recipe.output.type} from ${inputs} (${recipe.craftTime}s)`;
+				recipeList.appendChild(li);
+			});
 		}
 	}
 }

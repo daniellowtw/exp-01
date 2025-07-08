@@ -4,7 +4,7 @@ import { Game } from "./Game";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
-    <canvas id="game-canvas" width="800" height="600"></canvas>
+    <canvas id="game-canvas" width="800" height="600" style="border: 1px solid black;"></canvas>
   </div>
 `;
 

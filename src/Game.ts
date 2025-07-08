@@ -14,6 +14,7 @@ export class Game {
 	world: World;
 	mouse: Mouse;
 	buildingType: BuildingType = "miner";
+	currentBeltDirection: "up" | "down" | "left" | "right" = "right";
 	ui: UI;
 	objective: { description: string; current: number; target: number };
 	cameraX: number = 0;
@@ -47,11 +48,22 @@ export class Game {
 		document
 			.getElementById("assembler-button")!
 			.addEventListener("click", () => (this.buildingType = "assembler"));
+
+        window.addEventListener('keydown', (e) => this.handleKey(e));
 	}
 
 	start() {
 		this.gameLoop();
 	}
+
+    handleKey(e: KeyboardEvent) {
+        if (e.key === 'r' && this.buildingType === 'belt') {
+            const directions = ['right', 'down', 'left', 'up'];
+            const currentIndex = directions.indexOf(this.currentBeltDirection);
+            const nextIndex = (currentIndex + 1) % directions.length;
+            this.currentBeltDirection = directions[nextIndex] as any;
+        }
+    }
 
 	handleMouseMove() {
 		const gridX = Math.floor(
@@ -77,6 +89,7 @@ export class Game {
                 type: building.type,
                 inventory: building.inventory,
             };
+            console.log(`Hovered building: ${building.type} at (${gridX}, ${gridY}) with inventory: ${building.inventory.map(item => item.type).join(", ")}`);
         } else if (resource) {
             this.hoveredTile = {
                 x: this.mouse.x,
@@ -99,6 +112,7 @@ export class Game {
 			gridX * this.world.tileSize,
 			gridY * this.world.tileSize,
 			this.buildingType,
+			this.buildingType === 'belt' ? this.currentBeltDirection : undefined
 		);
 	}
 
