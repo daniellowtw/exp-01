@@ -2,8 +2,9 @@ import { Player } from "./Player";
 import { Keyboard } from "./Keyboard";
 import { World } from "./World";
 import { Mouse } from "./Mouse";
-import { BuildingType } from "./Building";
+import type { BuildingType } from "./Building";
 import { UI } from "./UI";
+import { Resource } from "./Resource";
 
 export class Game {
 	canvas: HTMLCanvasElement;
@@ -17,7 +18,7 @@ export class Game {
 	objective: { description: string; current: number; target: number };
 	cameraX: number = 0;
 	cameraY: number = 0;
-	hoveredTile: { x: number; y: number; type: string } | null = null;
+	hoveredTile: { x: number; y: number; type: string; inventory?: Resource[] } | null = null;
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas;
@@ -69,22 +70,22 @@ export class Game {
 			gridY * this.world.tileSize,
 		);
 
-		if (resource) {
-			this.hoveredTile = {
-				x: this.mouse.x,
-				y: this.mouse.y,
-				type: resource.type,
-			};
-		} else if (building) {
-			this.hoveredTile = {
-				x: this.mouse.x,
-				y: this.mouse.y,
-				type: building.type,
-				inventory: building.inventory,
-			};
-		} else {
-			this.hoveredTile = null;
-		}
+        if (building) {
+            this.hoveredTile = {
+                x: this.mouse.x,
+                y: this.mouse.y,
+                type: building.type,
+                inventory: building.inventory,
+            };
+        } else if (resource) {
+            this.hoveredTile = {
+                x: this.mouse.x,
+                y: this.mouse.y,
+                type: resource.type,
+            };
+        } else {
+            this.hoveredTile = null;
+        }
 	}
 
 	handleClick() {
