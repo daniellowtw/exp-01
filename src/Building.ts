@@ -19,7 +19,12 @@ export class Building {
 	recipe: Recipe | null = null;
 	craftingProgress: number = 0;
 
-	constructor(x: number, y: number, type: BuildingType, direction?: "up" | "down" | "left" | "right") {
+	constructor(
+		x: number,
+		y: number,
+		type: BuildingType,
+		direction?: "up" | "down" | "left" | "right",
+	) {
 		this.x = x;
 		this.y = y;
 		this.width = 50;
@@ -70,7 +75,8 @@ export class Building {
 				if (nextBuilding && nextBuilding.canAcceptResource(this.inventory[0])) {
 					nextBuilding.inventory.push(this.inventory.shift()!); // Use shift to remove from the front
 				}
-			} else { // If inventory is empty, try to pull from previous building
+			} else {
+				// If inventory is empty, try to pull from previous building
 				let prevX = this.x;
 				let prevY = this.y;
 
@@ -148,7 +154,7 @@ export class Building {
 		}
 		// Assemblers can accept resources that are inputs for their recipe
 		if (this.type === "assembler" && this.recipe) {
-			return this.recipe.inputs.some(input => input.type === resource.type);
+			return this.recipe.inputs.some((input) => input.type === resource.type);
 		}
 		return false;
 	}
@@ -168,8 +174,8 @@ export class Building {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.width, this.height);
 
-		if (this.type === 'belt') {
-			ctx.strokeStyle = 'black';
+		if (this.type === "belt") {
+			ctx.strokeStyle = "black";
 			ctx.lineWidth = 2;
 			ctx.beginPath();
 
@@ -178,22 +184,22 @@ export class Building {
 			const arrowSize = 10;
 
 			switch (this.direction) {
-				case 'right':
+				case "right":
 					ctx.moveTo(centerX - arrowSize, centerY - arrowSize);
 					ctx.lineTo(centerX + arrowSize, centerY);
 					ctx.lineTo(centerX - arrowSize, centerY + arrowSize);
 					break;
-				case 'left':
+				case "left":
 					ctx.moveTo(centerX + arrowSize, centerY - arrowSize);
 					ctx.lineTo(centerX - arrowSize, centerY);
 					ctx.lineTo(centerX + arrowSize, centerY + arrowSize);
 					break;
-				case 'up':
+				case "up":
 					ctx.moveTo(centerX - arrowSize, centerY + arrowSize);
 					ctx.lineTo(centerX, centerY - arrowSize);
 					ctx.lineTo(centerX + arrowSize, centerY + arrowSize);
 					break;
-				case 'down':
+				case "down":
 					ctx.moveTo(centerX - arrowSize, centerY - arrowSize);
 					ctx.lineTo(centerX, centerY + arrowSize);
 					ctx.lineTo(centerX + arrowSize, centerY - arrowSize);
