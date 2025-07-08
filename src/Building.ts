@@ -1,7 +1,8 @@
-import { Resource } from "./Resource";
+import { Resource, type ResourceType } from "./Resource";
 import { ironPlateRecipe, type Recipe } from "./Recipe";
 import type { Player } from "./Player";
 import type { World } from "./World";
+import type { ResourceAmount } from "./ResourceAmount";
 
 export type BuildingType = "miner" | "belt" | "assembler" | "delete";
 
@@ -12,7 +13,7 @@ export class Building {
 	height: number;
 	type: BuildingType;
 	color: string;
-	inventory: Resource[] = [];
+	inventory: ResourceAmount[] = [];
 	miningSpeed: number = 1; // resources per second
 	lastMineTime: number = 0;
 	direction: "up" | "down" | "left" | "right" = "right";
@@ -40,13 +41,15 @@ export class Building {
 			if (now - this.lastMineTime > 1000 / this.miningSpeed) {
 				const resource = world.getResourceAt(this.x, this.y);
 				if (resource) {
-					this.inventory.push(resource);
+					this.addResourceToInventory(resource.type, 1);
 					this.lastMineTime = now;
 				}
 			}
 		}
 		if (this.type === "belt") {
 			if (this.inventory.length > 0) {
+				const resourceToMove = this.inventory[0]; // Peek at the first resource
+
 				let nextX = this.x;
 				let nextY = this.y;
 
@@ -66,8 +69,9 @@ export class Building {
 				}
 
 				const nextBuilding = world.getBuildingAt(nextX, nextY);
-				if (nextBuilding && nextBuilding.canAcceptResource(this.inventory[0])) {
-					nextBuilding.inventory.push(this.inventory.shift()!); // Use shift to remove from the front
+				if (nextBuilding && nextBuilding.canAcceptResource(resourceToMove.type)) {
+					nextBuilding.addResourceToInventory(resourceToMove.type, 1);
+					this.removeResourceFromInventory(resourceToMove.type, 1);
 				}
 			} else { // If inventory is empty, try to pull from previous building
 				let prevX = this.x;
@@ -92,16 +96,14 @@ export class Building {
 				if (prevBuilding && prevBuilding.inventory.length > 0) {
 					const resourceToPull = prevBuilding.inventory[0];
 					// Belts can accept any resource, so no need to check canAcceptResource here
-					this.inventory.push(prevBuilding.inventory.shift()!); // Pull the resource
+					this.addResourceToInventory(resourceToPull.type, 1);
+					prevBuilding.removeResourceFromInventory(resourceToPull.type, 1);
 				}
 			}
 		}
 		if (this.type === "assembler" && this.recipe) {
 			const hasInputs = this.recipe.inputs.every((input) => {
-				return (
-					this.inventory.filter((r) => r.type === input.type).length >=
-					input.amount
-				);
+				return this.getResourceCount(input.type) >= input.amount;
 			});
 
 			if (hasInputs) {
@@ -109,30 +111,17 @@ export class Building {
 				if (this.craftingProgress >= this.recipe.craftTime) {
 					// Consume inputs
 					this.recipe.inputs.forEach((input) => {
-						for (let i = 0; i < input.amount; i++) {
-							const resourceIndex = this.inventory.findIndex(
-								(r) => r.type === input.type,
-							);
-							this.inventory.splice(resourceIndex, 1);
-						}
+						this.removeResourceFromInventory(input.type, input.amount);
 					});
 					// Produce output
-					const outputResource = new Resource(
-						this.x,
-						this.y,
-						50,
-						50,
-						this.recipe.output.type,
-					);
+					const outputResourceType = this.recipe.output.type;
+					const outputResourceAmount = this.recipe.output.amount;
+
 					const nextBuilding = world.getBuildingAt(this.x + this.width, this.y); // Still hardcoded for now
-					if (nextBuilding && nextBuilding.canAcceptResource(outputResource)) {
-						nextBuilding.inventory.push(outputResource);
+					if (nextBuilding && nextBuilding.canAcceptResource(outputResourceType)) {
+						nextBuilding.addResourceToInventory(outputResourceType, outputResourceAmount);
 					} else {
-						player.collectResource(
-							outputResource.type,
-							(outputResource.width * outputResource.height) /
-								(world.tileSize * world.tileSize),
-						);
+						player.collectResource(outputResourceType, outputResourceAmount);
 					}
 					this.craftingProgress = 0;
 				}
@@ -140,17 +129,41 @@ export class Building {
 		}
 	}
 
-	canAcceptResource(resource: Resource): boolean {
-		// Belts can accept any resource
-		if (this.type === "belt") {
-			return true;
-		}
-		// Assemblers can accept resources that are inputs for their recipe
-		if (this.type === "assembler" && this.recipe) {
-			return this.recipe.inputs.some(input => input.type === resource.type);
-		}
-		return false;
-	}
+    addResourceToInventory(type: ResourceType, amount: number) {
+        const existingResource = this.inventory.find(r => r.type === type);
+        if (existingResource) {
+            existingResource.amount += amount;
+        } else {
+            this.inventory.push({ type, amount });
+        }
+    }
+
+    removeResourceFromInventory(type: ResourceType, amount: number) {
+        const existingResource = this.inventory.find(r => r.type === type);
+        if (existingResource) {
+            existingResource.amount -= amount;
+            if (existingResource.amount <= 0) {
+                this.inventory = this.inventory.filter(r => r.type !== type);
+            }
+        }
+    }
+
+    getResourceCount(type: ResourceType): number {
+        const resource = this.inventory.find(r => r.type === type);
+        return resource ? resource.amount : 0;
+    }
+
+    canAcceptResource(resourceType: ResourceType): boolean {
+        // Belts can accept any resource
+        if (this.type === "belt") {
+            return true;
+        }
+        // Assemblers can accept resources that are inputs for their recipe
+        if (this.type === "assembler" && this.recipe) {
+            return this.recipe.inputs.some(input => input.type === resourceType);
+        }
+        return false;
+    }
 
 	getColor(): string {
 		switch (this.type) {
@@ -159,7 +172,7 @@ export class Building {
 			case "belt":
 				return "#f5f5dc";
 			case "assembler":
-				return "#add8e6";
+				return "#add3e6";
             case "delete":
                 return "#ff0000"; // Red for delete mode
 		}
@@ -204,3 +217,4 @@ export class Building {
 		}
 	}
 }
+

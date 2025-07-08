@@ -1,7 +1,7 @@
 import type { BuildingType } from "./Building";
 import type { Player } from "./Player";
-import { Resource } from "./Resource";
 import { ironPlateRecipe, type Recipe } from "./Recipe";
+import { type ResourceAmount } from "./ResourceAmount";
 
 export class UI {
 	draw(
@@ -13,9 +13,18 @@ export class UI {
 			x: number;
 			y: number;
 			type: string;
-			inventory?: Resource[];
+			inventory?: ResourceAmount[];
 		} | null,
 	) {
+		// Draw resource count (from player inventory)
+		player.inventory.forEach((item) => {
+			ctx.fillText(
+				`${item.type}: ${item.amount}`,
+				10,
+				30 + player.inventory.indexOf(item) * 30,
+			);
+		});
+
 		// Draw tooltip
 		if (hoveredTile) {
 			ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -25,7 +34,7 @@ export class UI {
 			if (hoveredTile.inventory) {
 				tooltipText += "\nInventory:";
 				hoveredTile.inventory.forEach((item) => {
-					tooltipText += `\n- ${item.type}`;
+					tooltipText += `\n- ${item.type}: ${item.amount}`;
 					tooltipHeight += 20;
 				});
 			}
@@ -46,15 +55,15 @@ export class UI {
 			});
 		}
 
-		// Update inventory display
+		// Update inventory display (sidebar)
 		const inventoryList = document.getElementById("inventory-list");
 		if (inventoryList) {
 			inventoryList.innerHTML = "";
-			for (const item in player.inventory) {
+			player.inventory.forEach((item) => {
 				const li = document.createElement("li");
-				li.textContent = `${item}: ${player.inventory[item as keyof typeof player.inventory]}`;
+				li.textContent = `${item.type}: ${item.amount}`;
 				inventoryList.appendChild(li);
-			}
+			});
 		}
 
 		// Update recipe display

@@ -5,6 +5,7 @@ import { Mouse } from "./Mouse";
 import type { BuildingType } from "./Building";
 import { UI } from "./UI";
 import { Resource } from "./Resource";
+import { type ResourceAmount } from "./ResourceAmount";
 
 export class Game {
 	canvas: HTMLCanvasElement;
@@ -23,7 +24,7 @@ export class Game {
 		x: number;
 		y: number;
 		type: string;
-		inventory?: Resource[];
+		inventory?: ResourceAmount[];
 	} | null = null;
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -137,7 +138,7 @@ export class Game {
 	update() {
 		this.player.update(this.keyboard);
 		this.world.update(this.player);
-		this.objective.current = this.player.inventory["iron-plate"];
+		this.objective.current = this.player.inventory.find(item => item.type === "iron-plate")?.amount || 0;
 
 		// Update camera position based on player position
 		this.cameraX = this.player.x - this.canvas.width / 2;
