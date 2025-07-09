@@ -1,4 +1,5 @@
 import { Player } from "./Player";
+import { tickInterval, TICKS_PER_SECOND } from "./main";
 import { Keyboard } from "./Keyboard";
 import { World } from "./World";
 import { Mouse } from "./Mouse";
@@ -20,6 +21,7 @@ export class Game {
 	objective: { description: string; current: number; target: number };
 	cameraX: number = 0;
 	cameraY: number = 0;
+	lastTickTime: number = 0;
 	hoveredTile: {
 		x: number;
 		y: number;
@@ -35,7 +37,7 @@ export class Game {
 		this.world = new World(100, 100, 50);
 		this.world.generate();
 		this.mouse = new Mouse(this.canvas);
-		this.ui = new UI();
+		this.ui = new UI(TICKS_PER_SECOND);
 		this.objective = {
 			description: "Produce 10 Iron Plates",
 			current: 0,
@@ -66,6 +68,11 @@ export class Game {
 
 	start() {
 		this.gameLoop();
+		setInterval(() => this.gameTick(), tickInterval);
+	}
+
+	gameTick() {
+		this.world.update(this.player);
 	}
 
     handleKey(e: KeyboardEvent) {
@@ -140,7 +147,6 @@ export class Game {
 
 	update() {
 		this.player.update(this.keyboard);
-		this.world.update(this.player);
 		this.objective.current = this.player.inventory.find(item => item.type === "iron-plate")?.amount || 0;
 
 		// Update camera position based on player position

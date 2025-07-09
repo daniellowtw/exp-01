@@ -6,6 +6,11 @@ import { ResourceAmount } from "./ResourceAmount";
 
 
 export class UI {
+    private ticksPerSecond: number;
+
+    constructor(ticksPerSecond: number) {
+        this.ticksPerSecond = ticksPerSecond;
+    }
     draw(ctx: CanvasRenderingContext2D, buildingType: BuildingType, player: Player, objective: { description: string, current: number, target: number }, hoveredTile: { x: number, y: number, type: string, inventory?: ResourceAmount[] } | null) {
         ctx.fillStyle = 'white';
         ctx.font = '24px sans-serif';
@@ -51,6 +56,9 @@ export class UI {
                 li.textContent = `${item.type}: ${item.amount}`;
                 inventoryList.appendChild(li);
             });
+            const ticksLi = document.createElement('li');
+            ticksLi.textContent = `Ticks/Sec: ${this.ticksPerSecond}`;
+            inventoryList.appendChild(ticksLi);
         }
 
         // Update recipe display

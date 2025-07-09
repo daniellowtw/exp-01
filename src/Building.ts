@@ -14,7 +14,7 @@ export class Building {
 	type: BuildingType;
 	color: string;
 	inventory: ResourceAmount[] = [];
-	miningSpeed: number = 1; // resources per second
+	miningSpeed: number = 1; // resources per tick
 	lastMineTime: number = 0;
 	direction: "up" | "down" | "left" | "right" = "right";
 	recipe: Recipe | null = null;
@@ -35,15 +35,11 @@ export class Building {
 		}
 	}
 
-	update(world: World, player: Player) {
+	tickUpdate(world: World, player: Player, deltaTime: number) {
 		if (this.type === "miner") {
-			const now = Date.now();
-			if (now - this.lastMineTime > 1000 / this.miningSpeed) {
-				const resource = world.getResourceAt(this.x, this.y);
-				if (resource) {
-					this.addResourceToInventory(resource.type, 1);
-					this.lastMineTime = now;
-				}
+			const resource = world.getResourceAt(this.x, this.y);
+			if (resource) {
+				this.addResourceToInventory(resource.type, this.miningSpeed);
 			}
 		}
 		if (this.type === "belt") {
@@ -107,7 +103,7 @@ export class Building {
 			});
 
 			if (hasInputs) {
-				this.craftingProgress += 1 / 60; // Assuming 60 FPS
+				this.craftingProgress += 1;
 				if (this.craftingProgress >= this.recipe.craftTime) {
 					// Consume inputs
 					this.recipe.inputs.forEach((input) => {
