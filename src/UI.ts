@@ -5,13 +5,15 @@ import { ironPlateRecipe, Recipe } from "./Recipe";
 import { ResourceAmount } from "./ResourceAmount";
 
 
+import type { World } from "./World";
+
 export class UI {
     private ticksPerSecond: number;
 
     constructor(ticksPerSecond: number) {
         this.ticksPerSecond = ticksPerSecond;
     }
-    draw(ctx: CanvasRenderingContext2D, buildingType: BuildingType, player: Player, objective: { description: string, current: number, target: number }, hoveredTile: { x: number, y: number, type: string, inventory?: ResourceAmount[] } | null) {
+    draw(ctx: CanvasRenderingContext2D, buildingType: BuildingType, player: Player, objective: { description: string, current: number, target: number }, hoveredTile: { x: number, y: number, type: string, inventory?: ResourceAmount[] } | null, world: World) {
         ctx.fillStyle = 'white';
         ctx.font = '24px sans-serif';
 
@@ -86,5 +88,43 @@ export class UI {
             progressLi.textContent = `Progress: ${objective.current}/${objective.target}`;
             objectiveList.appendChild(progressLi);
         }
+
+        // Draw minimap
+        const minimapX = ctx.canvas.width - 210;
+        const minimapY = 10;
+        const minimapWidth = 200;
+        const minimapHeight = 200;
+        const minimapScale = 0.1;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(minimapX, minimapY, minimapWidth, minimapHeight);
+
+        for (const resource of world.resources) {
+            ctx.fillStyle = resource.color;
+            ctx.fillRect(
+                minimapX + resource.x * minimapScale,
+                minimapY + resource.y * minimapScale,
+                resource.width * minimapScale,
+                resource.height * minimapScale
+            );
+        }
+
+        for (const building of world.buildings) {
+            ctx.fillStyle = building.color;
+            ctx.fillRect(
+                minimapX + building.x * minimapScale,
+                minimapY + building.y * minimapScale,
+                building.width * minimapScale,
+                building.height * minimapScale
+            );
+        }
+
+        ctx.fillStyle = 'red';
+        ctx.fillRect(
+            minimapX + player.x * minimapScale,
+            minimapY + player.y * minimapScale,
+            player.width * minimapScale,
+            player.height * minimapScale
+        );
     }
 }

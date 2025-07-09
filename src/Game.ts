@@ -34,7 +34,7 @@ export class Game {
 		this.ctx = canvas.getContext("2d")!;
 		this.player = new Player(100, 100);
 		this.keyboard = new Keyboard();
-		this.world = new World(100, 100, 50);
+		this.world = new World(100, 100, 30);
 		this.world.generate();
 		this.mouse = new Mouse(this.canvas);
 		this.ui = new UI(TICKS_PER_SECOND);
@@ -167,6 +167,7 @@ export class Game {
 			this.player,
 			this.objective,
 			this.hoveredTile,
+			this.world
 		);
 	}
 }

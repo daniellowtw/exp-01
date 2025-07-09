@@ -20,12 +20,12 @@ export class Building {
 	recipe: Recipe | null = null;
 	craftingProgress: number = 0;
 
-	constructor(x: number, y: number, type: BuildingType, direction?: "up" | "down" | "left" | "right") {
-		this.x = x;
-		this.y = y;
-		this.width = 50;
-		this.height = 50;
-		this.type = type;
+	constructor(x: number, y: number, type: BuildingType, size: number, direction?: "up" | "down" | "left" | "right") {
+        this.x = x;
+        this.y = y;
+        this.width = size;
+        this.height = size;
+        this.type = type;
 		this.color = this.getColor();
 		if (type === "assembler") {
 			this.recipe = ironPlateRecipe;

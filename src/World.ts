@@ -44,7 +44,7 @@ export class World {
 	}
 
 	addBuilding(x: number, y: number, type: BuildingType, direction?: 'up' | 'down' | 'left' | 'right') {
-        this.buildings.push(new Building(x, y, type, direction));
+        this.buildings.push(new Building(x, y, type, this.tileSize, direction));
     }
 
     removeBuilding(x: number, y: number) {
