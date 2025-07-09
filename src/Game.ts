@@ -7,6 +7,7 @@ import type { BuildingType } from "./Building";
 import { UI } from "./UI";
 import { Resource } from "./Resource";
 import { type ResourceAmount } from "./ResourceAmount";
+import { StateManager } from "./StateManager";
 
 export class Game {
 	canvas: HTMLCanvasElement;
@@ -19,6 +20,7 @@ export class Game {
 	currentBeltDirection: "up" | "down" | "left" | "right" = "right";
 	ui: UI;
 	objective: { description: string; current: number; target: number };
+    stateManager: StateManager;
 	cameraX: number = 0;
 	cameraY: number = 0;
 	lastTickTime: number = 0;
@@ -38,11 +40,13 @@ export class Game {
 		this.world.generate();
 		this.mouse = new Mouse(this.canvas);
 		this.ui = new UI(TICKS_PER_SECOND);
+        this.stateManager = new StateManager();
 		this.objective = {
 			description: "Produce 10 Iron Plates",
 			current: 0,
 			target: 10,
 		};
+        this.stateManager.loadState(this);
 		this.gameLoop = this.gameLoop.bind(this);
 		this.canvas.addEventListener("click", () => this.handleClick());
 		this.canvas.addEventListener("mousemove", () => this.handleMouseMove());
@@ -62,6 +66,9 @@ export class Game {
         document
             .getElementById("delete-button")!
             .addEventListener("click", () => (this.buildingType = "delete" as BuildingType));
+        document
+            .getElementById("save-button")!
+            .addEventListener("click", () => this.stateManager.saveState(this));
 
 		window.addEventListener("keydown", (e) => this.handleKey(e));
 	}
