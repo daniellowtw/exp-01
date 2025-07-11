@@ -1,6 +1,4 @@
-import type { BuildingType } from "./Building";
 import type { Player } from "./Player";
-import { Resource } from "./Resource";
 import { ironPlateRecipe, Recipe } from "./Recipe";
 import { ResourceAmount } from "./ResourceAmount";
 
@@ -13,7 +11,7 @@ export class UI {
     constructor(ticksPerSecond: number) {
         this.ticksPerSecond = ticksPerSecond;
     }
-    draw(ctx: CanvasRenderingContext2D, buildingType: BuildingType, player: Player, objective: { description: string, current: number, target: number }, hoveredTile: { x: number, y: number, type: string, inventory?: ResourceAmount[] } | null, world: World) {
+    draw(ctx: CanvasRenderingContext2D, player: Player, objective: { description: string, current: number, target: number }, hoveredTile: { x: number, y: number, type: string, inventory?: ResourceAmount[] } | null, world: World) {
         ctx.fillStyle = 'white';
         ctx.font = '24px sans-serif';
 

@@ -5,7 +5,6 @@ import { World } from "./World";
 import { Mouse } from "./Mouse";
 import type { BuildingType } from "./Building";
 import { UI } from "./UI";
-import { Resource } from "./Resource";
 import { type ResourceAmount } from "./ResourceAmount";
 import { StateManager } from "./StateManager";
 
@@ -169,12 +168,11 @@ export class Game {
 		this.player.draw(this.ctx);
 		this.ctx.restore();
 		this.ui.draw(
-			this.ctx,
-			this.buildingType,
-			this.player,
-			this.objective,
-			this.hoveredTile,
-			this.world
-		);
+				this.ctx,
+				this.player,
+				this.objective,
+				this.hoveredTile,
+				this.world
+			);
 	}
 }

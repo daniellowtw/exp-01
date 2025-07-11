@@ -1,7 +1,6 @@
 import { Resource } from "./Resource";
 import type { ResourceType } from "./Resource";
 import { Building, type BuildingType } from "./Building";
-import { tickInterval } from "./main";
 
 export class World {
 	width: number;
@@ -61,7 +60,7 @@ export class World {
 
 	update(player: any) {
 		for (const building of this.buildings) {
-			building.tickUpdate(this, player, tickInterval);
+			building.tickUpdate(this, player);
 		}
 	}
 

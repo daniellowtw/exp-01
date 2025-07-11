@@ -1,4 +1,4 @@
-import { Resource, type ResourceType } from "./Resource";
+import { type ResourceType } from "./Resource";
 import { ironPlateRecipe, type Recipe } from "./Recipe";
 import type { Player } from "./Player";
 import type { World } from "./World";
@@ -35,7 +35,7 @@ export class Building {
 		}
 	}
 
-	tickUpdate(world: World, player: Player, deltaTime: number) {
+		tickUpdate(world: World, player: Player) {
 		if (this.type === "miner") {
 			const resource = world.getResourceAt(this.x, this.y);
 			if (resource) {
