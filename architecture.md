@@ -3,13 +3,13 @@
 ```mermaid
 graph TD
     subgraph Main Loop
-        A[setInterval(gameTick, tickInterval)] --> B{Game.ts: gameTick()};
+        A["setInterval(gameTick, tickInterval)"] --> B{"Game.ts: gameTick()"};
     end
 
     subgraph Game Logic
-        B --> C{World.ts: update()};
+        B --> C{"World.ts: update()"};
         C --> D{For each Building...};
-        D --> E[Building.ts: tickUpdate()];
+        D --> E["Building.ts: tickUpdate()"];
     end
 
     subgraph State Interaction
